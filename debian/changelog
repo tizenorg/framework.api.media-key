@@ -1,0 +1,9 @@
+capi-system-media-key (0.0.1-1) unstable; urgency=low
+
+  * Initial upload
+  * Git: slp/api/media-key
+  * Tag: capi-system-media-key_0.0.1-1
+
+
+ -- Jaeho Lee <jaeho81.lee@samsung.com>  Sat, 28 Aug 2012 10:40:37 +0900
+

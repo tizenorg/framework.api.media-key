@@ -1,0 +1,22 @@
+
+Source: capi-system-media-key
+Section: libs
+Priority: extra
+Maintainer: Jaeho Lee <jaeho81.lee@samsung.com>
+Build-Depends: debhelper (>= 5), dlog-dev, capi-base-common-dev, libaul-1-dev, libslp-utilx-dev
+
+Package: capi-system-media-key
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A Media key library in Tizen Native API
+
+Package: capi-system-media-key-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, capi-system-media-key (= ${Source-Version}), capi-base-common-dev
+Description: A Media key library in Tizen Native API (DEV)
+
+Package: capi-system-media-key-dbg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, capi-system-media-key (= ${Source-Version})
+Description: A Media key library in Tizen Native API (DBG)
+
