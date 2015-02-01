@@ -1,17 +1,19 @@
 Name:       capi-system-media-key
 Summary:    A System Information library in SLP C API
-Version: 0.1.1
+Version: 0.1.2
 Release:    6
 Group:      TO_BE/FILLED_IN
 License:    TO BE FILLED IN
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(capi-base-common)
-BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(utilX)
+BuildRequires:  pkgconfig(ecore)
+BuildRequires:  pkgconfig(ecore-x)
+BuildRequires:  pkgconfig(ecore-input)
+BuildRequires:  pkgconfig(evas)
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -33,10 +35,10 @@ Requires: %{name} = %{version}-%{release}
 
 
 %build
-%if 0%{?tizen_build_binary_release_type_eng}
-export CFLAGS="$CFLAGS -DTIZEN_ENGINEER_MODE"
-export CXXFLAGS="$CXXFLAGS -DTIZEN_ENGINEER_MODE"
-export FFLAGS="$FFLAGS -DTIZEN_ENGINEER_MODE"
+%if 0%{?sec_build_binary_debug_enable}
+export CFLAGS="$CFLAGS -DTIZEN_DEBUG_ENABLE"
+export CXXFLAGS="$CXXFLAGS -DTIZEN_DEBUG_ENABLE"
+export FFLAGS="$FFLAGS -DTIZEN_DEBUG_ENABLE"
 %endif
 MAJORVER=`echo %{version} | awk 'BEGIN {FS="."}{print $1}'`
 cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
