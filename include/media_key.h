@@ -24,53 +24,66 @@ extern "C"
 {
 #endif
 
- /**
+/**
+ * @file media_key.h
+ */
+
+/**
  * @addtogroup CAPI_SYSTEM_MEDIA_KEY_MODULE
  * @{
  */
 
 /**
- * @brief Enumeration of error code for media key
+ * @brief Enumeration for error codes of a media key.
+ *
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 
 typedef enum
 {
-	MEDIA_KEY_ERROR_NONE = TIZEN_ERROR_NONE, /**< Successful */
+	MEDIA_KEY_ERROR_NONE = TIZEN_ERROR_NONE,                           /**< Successful */
 	MEDIA_KEY_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
+	MEDIA_KEY_ERROR_OPERATION_FAILED = TIZEN_ERROR_MEDIA_KEY | 0x01,   /**< Reserve/Release failed */
 } media_key_error_e;
 
-
 /**
- * @brief Enumeration of media key
+ * @brief Enumeration for media keys.
+ *
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 typedef enum
 {
-	MEDIA_KEY_PLAY, /**< */
-	MEDIA_KEY_STOP, /**< */
-	MEDIA_KEY_PAUSE, /**< */
-	MEDIA_KEY_PREVIOUS, /**< */
-	MEDIA_KEY_NEXT, /**< */
-	MEDIA_KEY_FASTFORWARD, /**< */
-	MEDIA_KEY_REWIND, /**< */
-	MEDIA_KEY_UNKNOWN,
+	MEDIA_KEY_PLAY,          /**< Play key */
+	MEDIA_KEY_STOP,          /**< Stop key */
+	MEDIA_KEY_PAUSE,         /**< Pause key */
+	MEDIA_KEY_PREVIOUS,      /**< Previous key */
+	MEDIA_KEY_NEXT,          /**< Next key */
+	MEDIA_KEY_FASTFORWARD,   /**< Fastforward key */
+	MEDIA_KEY_REWIND,        /**< Rewind key */
+	MEDIA_KEY_PLAYPAUSE,     /**< Playpause key */
+	MEDIA_KEY_MEDIA,         /**< Media key for earjack */
+	MEDIA_KEY_UNKNOWN,       /**< Unknown key */
 } media_key_e;
 
-
 /**
- * @brief Enumeration of media key event status
+ * @brief Enumeration for event statuses of a media key.
+ *
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 typedef enum
 {
-	MEDIA_KEY_STATUS_PRESSED, /**<  */
-	MEDIA_KEY_STATUS_RELEASED, /**<  */
-	MEDIA_KEY_STATUS_UNKNOWN,
+	MEDIA_KEY_STATUS_PRESSED,  /**< Pressed status */
+	MEDIA_KEY_STATUS_RELEASED, /**< Released status */
+	MEDIA_KEY_STATUS_UNKNOWN,  /**< Unknown status */
 } media_key_event_e;
 
-
 /**
- * @brief   Called when the status of media key is changed
- * @param[in] key the key which has status change
- * @param[in] status the status of key
+ * @brief Called when the status of the media key is changed.
+ *
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ *
+ * @param[in] key The key whose status is changed
+ * @param[in] status The status of the key
  * @param[in] user_data The user data passed from the callback registration function
  * @pre media_key_reserve() will invoke this callback function.
  * @see media_key_reserve()
@@ -78,36 +91,35 @@ typedef enum
  */
 typedef void (*media_key_event_cb)(media_key_e key, media_key_event_e status, void* user_data);
 
-
 /**
- * @brief   Registers a change event callback for all media keys.
+ * @brief Registers a change event callback for all media keys.
+ *
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  *
  * @param[in] callback The callback function to invoke
  * @param[in] user_data The user data to be passed to the callback function
- *
- * @return  0 on success, otherwise a negative error value.
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
  * @retval  #MEDIA_KEY_ERROR_NONE Successful
  * @retval  #MEDIA_KEY_ERROR_INVALID_PARAMETER Invalid parameter
- * @post runtime_info_changed_cb() will be invoked.
- *
+ * @retval  #MEDIA_KEY_ERROR_OPERATION_FAILED Reserve key failed
  * @see media_key_release()
- * @see media_key_event_cb()
 */
 int media_key_reserve(media_key_event_cb callback, void* user_data);
 
-
 /**
- * @brief   Unregisters the callback function.
+ * @brief Unregisters the change event callback function.
  *
- * @param[in] key The runtime information type
- * @return  0 on success, otherwise a negative error value.
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ *
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
  * @retval  #MEDIA_KEY_ERROR_NONE Successful
  * @retval  #MEDIA_KEY_ERROR_INVALID_PARAMETER Invalid parameter
- *
- * @see media_key_set_event_cb()
+ * @retval  #MEDIA_KEY_ERROR_OPERATION_FAILED Release key failed
+ * @see media_key_reserve()
  */
-int media_key_release();
-
+int media_key_release(void);
 
 /**
  * @}

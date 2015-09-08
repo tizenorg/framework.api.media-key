@@ -10,7 +10,7 @@ SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 SET(INC_DIR include)
 INCLUDE_DIRECTORIES(${INC_DIR})
 
-SET(requires "dlog capi-base-common aul utilX")
+SET(requires "dlog capi-base-common utilX ecore ecore-x ecore-input evas")
 SET(pc_requires "capi-base-common")
 
 INCLUDE(FindPkgConfig)

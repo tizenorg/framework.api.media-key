@@ -1,17 +1,19 @@
 Name:       capi-system-media-key
 Summary:    A System Information library in SLP C API
-Version: 0.1.0
-Release:    1
+Version: 0.1.2
+Release:    6
 Group:      TO_BE/FILLED_IN
-License:    TO BE FILLED IN
+License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(capi-base-common)
-BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(utilX)
+BuildRequires:  pkgconfig(ecore)
+BuildRequires:  pkgconfig(ecore-x)
+BuildRequires:  pkgconfig(ecore-input)
+BuildRequires:  pkgconfig(evas)
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -33,6 +35,11 @@ Requires: %{name} = %{version}-%{release}
 
 
 %build
+%if 0%{?sec_build_binary_debug_enable}
+export CFLAGS="$CFLAGS -DTIZEN_DEBUG_ENABLE"
+export CXXFLAGS="$CXXFLAGS -DTIZEN_DEBUG_ENABLE"
+export FFLAGS="$FFLAGS -DTIZEN_DEBUG_ENABLE"
+%endif
 MAJORVER=`echo %{version} | awk 'BEGIN {FS="."}{print $1}'`
 cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
 
@@ -43,6 +50,9 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+mkdir -p %{buildroot}/usr/share/license
+cp LICENSE %{buildroot}/usr/share/license/%{name}
+
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -50,6 +60,8 @@ rm -rf %{buildroot}
 
 %files
 %{_libdir}/libcapi-system-media-key.so.*
+%manifest capi-system-media-key.manifest
+/usr/share/license/%{name}
 
 %files devel
 %{_includedir}/system/media_key.h
