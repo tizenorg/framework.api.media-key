@@ -1,7 +1,7 @@
 Name:       capi-system-media-key
 Summary:    A System Information library in SLP C API
 Version: 0.1.2
-Release:    6
+Release:    7
 Group:      TO_BE/FILLED_IN
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz

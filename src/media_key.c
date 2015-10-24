@@ -14,16 +14,26 @@
 
 #define LOG_TAG "CAPI_SYSTEM_MEDIA_KEY"
 
+#define X_KEY_PLAYCD "XF86AudioPlay"
+#define X_KEY_STOPCD "XF86AudioStop"
+#define X_KEY_PAUSECD "XF86AudioPause"
+#define X_KEY_NEXTSONG "XF86AudioNext"
+#define X_KEY_PREVIOUSSONG "XF86AudioPrev"
+#define X_KEY_REWIND "XF86AudioRewind"
+#define X_KEY_FASTFORWARD "XF86AudioForward"
+#define X_KEY_PLAYPAUSE "XF86AudioPlayPause"
+#define X_KEY_MEDIA "XF86AudioMedia"
+
 static char *media_keys[] = {
-	KEY_PLAYCD,
-	KEY_STOPCD,
-	KEY_PAUSECD,
-	KEY_NEXTSONG,
-	KEY_PREVIOUSSONG,
-	KEY_REWIND,
-	KEY_FASTFORWARD,
-	KEY_PLAYPAUSE,
-	KEY_MEDIA,
+	X_KEY_PLAYCD,
+	X_KEY_STOPCD,
+	X_KEY_PAUSECD,
+	X_KEY_NEXTSONG,
+	X_KEY_PREVIOUSSONG,
+	X_KEY_REWIND,
+	X_KEY_FASTFORWARD,
+	X_KEY_PLAYPAUSE,
+	X_KEY_MEDIA,
 	NULL
 };
 
@@ -41,6 +51,8 @@ static int _media_key_init(void)
 	if (_media_key_initialized)
 		return 0;
 
+	ecore_x_init(NULL);
+
 	win = ecore_x_window_input_new(ecore_x_window_root_first_get(), 0, 0, 1, 1);
 	if (!win) {
 		LOGE("failed to create input window");
@@ -51,11 +63,16 @@ static int _media_key_init(void)
 	ecore_x_netwm_name_set(win, "media key receiver");
 	ecore_x_netwm_pid_set(win, getpid());
 
-	ecore_x_window_show(win);
-
 	_media_key_initialized = 1;
 
 	return 0;
+}
+
+static void _media_key_fini(void)
+{
+	ecore_x_window_free(win);
+	ecore_x_shutdown();
+	_media_key_initialized = 0;
 }
 
 static void _media_key_handler(const char *key_str, media_key_e event)
@@ -64,23 +81,23 @@ static void _media_key_handler(const char *key_str, media_key_e event)
 
 	key = MEDIA_KEY_UNKNOWN;
 
-	if (!strcmp(key_str, KEY_PLAYCD)) {
+	if (!strcmp(key_str, X_KEY_PLAYCD)) {
 		key = MEDIA_KEY_PLAY;
-	} else if (!strcmp(key_str, KEY_STOPCD)) {
+	} else if (!strcmp(key_str, X_KEY_STOPCD)) {
 		key = MEDIA_KEY_STOP;
-	} else if (!strcmp(key_str, KEY_PAUSECD)) {
+	} else if (!strcmp(key_str, X_KEY_PAUSECD)) {
 		key = MEDIA_KEY_PAUSE;
-	} else if (!strcmp(key_str, KEY_NEXTSONG)) {
+	} else if (!strcmp(key_str, X_KEY_NEXTSONG)) {
 		key = MEDIA_KEY_NEXT;
-	} else if (!strcmp(key_str, KEY_PREVIOUSSONG)) {
+	} else if (!strcmp(key_str, X_KEY_PREVIOUSSONG)) {
 		key = MEDIA_KEY_PREVIOUS;
-	} else if (!strcmp(key_str, KEY_REWIND)) {
+	} else if (!strcmp(key_str, X_KEY_REWIND)) {
 		key = MEDIA_KEY_REWIND;
-	} else if (!strcmp(key_str, KEY_FASTFORWARD)) {
+	} else if (!strcmp(key_str, X_KEY_FASTFORWARD)) {
 		key = MEDIA_KEY_FASTFORWARD;
-	} else if (!strcmp(key_str, KEY_PLAYPAUSE)) {
+	} else if (!strcmp(key_str, X_KEY_PLAYPAUSE)) {
 		key = MEDIA_KEY_PLAYPAUSE;
-	} else if (!strcmp(key_str, KEY_MEDIA)) {
+	} else if (!strcmp(key_str, X_KEY_MEDIA)) {
 		key = MEDIA_KEY_MEDIA;
 	}
 
@@ -125,7 +142,7 @@ static int _grab_media_key(void)
 
 	for (i = 0; media_keys[i]; i++) {
 		ret = utilx_grab_key(ecore_x_display_get(), win, media_keys[i], OR_EXCLUSIVE_GRAB);
-		if (ret) {
+		if (ret < 0) {
 			LOGE("failed to grab key: %s", media_keys[i]);
 			for (i = i - 1; i >= 0; i--)
 				utilx_ungrab_key(ecore_x_display_get(), win, media_keys[i]);
@@ -160,6 +177,12 @@ int media_key_reserve(media_key_event_cb callback, void* user_data)
 		return MEDIA_KEY_ERROR_INVALID_PARAMETER;
 	}
 
+	/* release (ungrab) before reserve. */
+	/* We need to do this because calling utilx_grab_key for OR_EXCLUSIVE multiple times is ignored. */
+	ret = media_key_release();
+	if (ret != MEDIA_KEY_ERROR_NONE)
+		LOGE("failed to release key before reserve");
+
 	if (!_media_key_initialized) {
 		if (_media_key_init())
 			return MEDIA_KEY_ERROR_OPERATION_FAILED;
@@ -190,11 +213,18 @@ int media_key_release(void)
 {
 	int ret;
 
+	if (!_media_key_initialized) {
+		LOGI("media key is not reserved");
+		return MEDIA_KEY_ERROR_NONE;
+	}
+
 	ret = _ungrab_media_key();
 	if (ret) {
 		LOGE("release media key error [%d]", ret);
 		return MEDIA_KEY_ERROR_OPERATION_FAILED;
 	}
+
+	_media_key_fini();
 
 	if (media_key_down) {
 		ecore_event_handler_del(media_key_down);
